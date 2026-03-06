@@ -295,8 +295,8 @@ NODE_ENV="development"
 
 | Fase | Entrega | Status |
 |---|---|---|
-| 1 | Setup: Next.js, Prisma, Neon, Auth, tRPC, layout base | 🔲 |
-| 2 | Relatórios Diários + calendário | 🔲 |
+| 1 | Setup: Next.js, Prisma, Neon, Auth, tRPC, layout base | ✅ |
+| 2 | Relatórios Diários + calendário | ✅ |
 | 3 | Registro de Venda + Avanço | 🔲 |
 | 4 | Dashboard Comercial completo | 🔲 |
 | 5 | Gestão de Metas | 🔲 |
