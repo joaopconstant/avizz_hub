@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { RegisterSaleModal } from "@/components/sales/register-sale-modal";
+import { AdvanceForm } from "@/components/advances/advance-form";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -33,6 +35,7 @@ type FormValues = {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type ExistingReport = {
+  id?: string;
   work_location: string;
   calls_total: number | null;
   calls_answered: number | null;
@@ -112,6 +115,8 @@ export function ReportForm({
   onSuccess,
 }: ReportFormProps) {
   const utils = api.useUtils();
+  const [showSaleModal, setShowSaleModal] = useState(false);
+  const [showAdvanceModal, setShowAdvanceModal] = useState(false);
 
   const {
     register,
@@ -180,6 +185,7 @@ export function ReportForm({
   };
 
   return (
+    <>
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       {/* Data */}
       <div>
@@ -287,6 +293,75 @@ export function ReportForm({
           {upsert.isPending ? "Salvando..." : existingReport ? "Atualizar relatório" : "Salvar relatório"}
         </Button>
       )}
+
+      {/* Ações comerciais — apenas para Closers (não SDR, não read-only) */}
+      {!isReadOnly && !isSdr && (
+        <>
+          <div className="relative my-1">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-background px-2 text-[10px] text-muted-foreground">
+                ações comerciais
+              </span>
+            </div>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={() => setShowSaleModal(true)}
+          >
+            Registrar Venda
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={() => setShowAdvanceModal(true)}
+          >
+            Registrar Avanço
+          </Button>
+        </>
+      )}
     </form>
+
+    {/* Modal de registro de venda — fora do form, fixed overlay */}
+    {showSaleModal && (
+      <RegisterSaleModal
+        report_id={existingReport?.id}
+        onSuccess={() => setShowSaleModal(false)}
+        onClose={() => setShowSaleModal(false)}
+      />
+    )}
+
+    {/* Modal de registro de avanço — fora do form, fixed overlay */}
+    {showAdvanceModal && (
+      <div className="fixed inset-0 z-50 flex items-start justify-center pt-8 pb-8 px-4">
+        <div
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm"
+          onClick={() => setShowAdvanceModal(false)}
+        />
+        <div className="relative z-10 bg-background ring-1 ring-foreground/10 rounded-xl w-full max-w-lg max-h-[calc(100vh-4rem)] overflow-y-auto shadow-md">
+          <div className="p-6">
+            <div className="mb-5">
+              <h2 className="text-lg font-semibold">Novo Avanço</h2>
+              <p className="text-sm text-muted-foreground">
+                Registre um lead em negociação.
+              </p>
+            </div>
+            <AdvanceForm
+              report_id={existingReport?.id}
+              onSuccess={() => setShowAdvanceModal(false)}
+              onCancel={() => setShowAdvanceModal(false)}
+            />
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

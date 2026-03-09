@@ -22,6 +22,16 @@ const NAV_ITEMS: NavItem[] = [
     roles: ["admin", "head", "closer", "sdr"],
   },
   {
+    href: "/sales",
+    label: "Vendas",
+    roles: ["admin", "head", "closer"],
+  },
+  {
+    href: "/advances",
+    label: "Avanços",
+    roles: ["admin", "head", "closer"],
+  },
+  {
     href: "/rankings",
     label: "Ranking",
     roles: ["admin", "head", "closer", "sdr", "operational"],

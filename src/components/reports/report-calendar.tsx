@@ -12,7 +12,7 @@ type CalendarDay = {
   isToday: boolean;
   isFuture: boolean;
   isPending: boolean;
-  report: { work_location: string } | null;
+  report: { id: string; work_location: string } | null;
 };
 
 type ReportCalendarProps = {
