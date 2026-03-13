@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { api } from "@/trpc/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,27 +57,25 @@ export function IndividualGoalModal({
   const isSDR = user.role === "sdr";
   const isCloser = user.role === "closer";
 
-  const [cashGoal, setCashGoal] = useState("");
-  const [salesGoal, setSalesGoal] = useState("");
-  const [rateAnswer, setRateAnswer] = useState("");
-  const [rateSchedule, setRateSchedule] = useState("");
-  const [rateNoShowMax, setRateNoShowMax] = useState("");
-  const [rateClose, setRateClose] = useState("");
+  const [cashGoal, setCashGoal] = useState(
+    existing ? String(existing.cash_goal) : "",
+  );
+  const [salesGoal, setSalesGoal] = useState(
+    existing?.sales_goal != null ? String(existing.sales_goal) : "",
+  );
+  const [rateAnswer, setRateAnswer] = useState(
+    decimalToPct(existing?.rate_answer),
+  );
+  const [rateSchedule, setRateSchedule] = useState(
+    decimalToPct(existing?.rate_schedule),
+  );
+  const [rateNoShowMax, setRateNoShowMax] = useState(
+    decimalToPct(existing?.rate_noshow_max),
+  );
+  const [rateClose, setRateClose] = useState(
+    decimalToPct(existing?.rate_close),
+  );
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (open) {
-      setCashGoal(existing ? String(existing.cash_goal) : "");
-      setSalesGoal(
-        existing?.sales_goal != null ? String(existing.sales_goal) : "",
-      );
-      setRateAnswer(decimalToPct(existing?.rate_answer));
-      setRateSchedule(decimalToPct(existing?.rate_schedule));
-      setRateNoShowMax(decimalToPct(existing?.rate_noshow_max));
-      setRateClose(decimalToPct(existing?.rate_close));
-      setError(null);
-    }
-  }, [open, existing]);
 
   const upsert = api.goals.upsertIndividualGoal.useMutation({
     onSuccess: () => {

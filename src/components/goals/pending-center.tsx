@@ -22,7 +22,6 @@ export function PendingCenter({
 
   const { data, isLoading, refetch } = api.goals.getPendingCenter.useQuery(
     { month },
-    { enabled: true },
   );
 
   const [addingForUser, setAddingForUser] = useState<{
@@ -117,7 +116,8 @@ export function PendingCenter({
 
       {addingForUser && data.goalId && (
         <IndividualGoalModal
-          open={!!addingForUser}
+          key={addingForUser.id}
+          open
           onClose={() => setAddingForUser(null)}
           onSaved={() => {
             setAddingForUser(null);

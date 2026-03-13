@@ -93,7 +93,7 @@ export function AuditLogModal({ goalId, open, onClose }: AuditLogModalProps) {
                         </span>
                       )}
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">
+                    <TableCell className="text-sm text-muted-foreground max-w-50 truncate">
                       {log.reason ?? "—"}
                     </TableCell>
                   </TableRow>

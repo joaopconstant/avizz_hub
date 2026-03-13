@@ -152,14 +152,18 @@ export const goalsRouter = createTRPCRouter({
       const monthDate = startOfMonth(new Date(input.month));
       const today = new Date();
 
-      // Busca goal do mês para filtrar metas individuais
-      const goal = await db.goal.findFirst({ where: { month: monthDate } });
+      // Dias úteis pendentes calculados antes das queries
+      const workdays = getWorkdaysInMonth(monthDate);
+      const pendingDays = workdays.filter((d) => isPendingDay(d, today));
 
-      // Usuários ativos que são closers ou sdrs
-      const salesUsers = await db.user.findMany({
-        where: { role: { in: ["closer", "sdr"] }, is_active: true },
-        select: { id: true, name: true, role: true, avatar_url: true },
-      });
+      // Queries independentes em paralelo
+      const [goal, salesUsers] = await Promise.all([
+        db.goal.findFirst({ where: { month: monthDate } }),
+        db.user.findMany({
+          where: { role: { in: ["closer", "sdr"] }, is_active: true },
+          select: { id: true, name: true, role: true, avatar_url: true },
+        }),
+      ]);
 
       // IDs com IndividualGoal definida neste mês
       const withGoal = goal
@@ -173,18 +177,17 @@ export const goalsRouter = createTRPCRouter({
       // Usuários sem meta
       const withoutGoal = salesUsers.filter((u) => !withGoalIds.has(u.id));
 
-      // Dias úteis do mês para cálculo de pendências
-      const workdays = getWorkdaysInMonth(monthDate);
-      const pendingDays = workdays.filter((d) => isPendingDay(d, today));
-
-      // Relatórios preenchidos no mês
-      const reports = await db.dailyReport.findMany({
-        where: {
-          report_date: { in: pendingDays },
-          user_id: { in: salesUsers.map((u) => u.id) },
-        },
-        select: { user_id: true, report_date: true },
-      });
+      // Relatórios preenchidos no mês (short-circuit se não há dias pendentes)
+      const reports =
+        pendingDays.length > 0
+          ? await db.dailyReport.findMany({
+              where: {
+                report_date: { in: pendingDays },
+                user_id: { in: salesUsers.map((u) => u.id) },
+              },
+              select: { user_id: true, report_date: true },
+            })
+          : [];
 
       const reportsByUser = new Map<string, Set<string>>();
       for (const r of reports) {
@@ -230,22 +233,23 @@ export const goalsRouter = createTRPCRouter({
       });
 
       if (existing) {
-        // RN-10: gerar auditoria ANTES de salvar
-        await db.goalAuditLog.create({
-          data: {
-            goal_id: existing.id,
-            changed_by: userId,
-            previous_cash: existing.cash_goal,
-            new_cash: input.cash_goal,
-            previous_sales_goal: existing.sales_goal,
-            new_sales_goal: input.sales_goal,
-            reason: input.reason ?? null,
-          },
-        });
-
-        const updated = await db.goal.update({
-          where: { id: existing.id },
-          data: { cash_goal: input.cash_goal, sales_goal: input.sales_goal },
+        // RN-10: gerar auditoria ANTES de salvar, atomicamente
+        const updated = await db.$transaction(async (tx) => {
+          await tx.goalAuditLog.create({
+            data: {
+              goal_id: existing.id,
+              changed_by: userId,
+              previous_cash: existing.cash_goal,
+              new_cash: input.cash_goal,
+              previous_sales_goal: existing.sales_goal,
+              new_sales_goal: input.sales_goal,
+              reason: input.reason ?? null,
+            },
+          });
+          return tx.goal.update({
+            where: { id: existing.id },
+            data: { cash_goal: input.cash_goal, sales_goal: input.sales_goal },
+          });
         });
 
         return serializeGoal(updated);

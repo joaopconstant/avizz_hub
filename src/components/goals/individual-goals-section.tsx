@@ -13,24 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { IndividualGoalModal, formatGoalTarget } from "./individual-goal-modal";
 import type { UserRole } from "@/lib/generated/prisma/enums";
-
-interface IndividualGoalItem {
-  id: string;
-  user_id: string;
-  goal_id: string;
-  cash_goal: number;
-  sales_goal: number | null;
-  rate_answer: number | null;
-  rate_schedule: number | null;
-  rate_noshow_max: number | null;
-  rate_close: number | null;
-  user: {
-    id: string;
-    name: string;
-    role: string;
-    avatar_url: string | null;
-  };
-}
+import type { IndividualGoalItem } from "./types";
 
 interface IndividualGoalsSectionProps {
   goalId: string;
@@ -47,17 +30,6 @@ export function IndividualGoalsSection({
 }: IndividualGoalsSectionProps) {
   const isAdmin = role === "admin";
   const [editing, setEditing] = useState<IndividualGoalItem | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
-
-  function openModal(item: IndividualGoalItem) {
-    setEditing(item);
-    setModalOpen(true);
-  }
-
-  function closeModal() {
-    setModalOpen(false);
-    setEditing(null);
-  }
 
   if (individualGoals.length === 0) {
     return (
@@ -108,7 +80,7 @@ export function IndividualGoalsSection({
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => openModal(ig)}
+                      onClick={() => setEditing(ig)}
                     >
                       Editar
                     </Button>
@@ -122,11 +94,12 @@ export function IndividualGoalsSection({
 
       {editing && (
         <IndividualGoalModal
-          open={modalOpen}
-          onClose={closeModal}
+          key={editing.id}
+          open
+          onClose={() => setEditing(null)}
           onSaved={() => {
+            setEditing(null);
             onSaved();
-            closeModal();
           }}
           goalId={goalId}
           user={editing.user}

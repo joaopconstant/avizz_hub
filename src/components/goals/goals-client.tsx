@@ -64,6 +64,7 @@ function AddIndividualGoalButton({
       </div>
       {selectedUser && (
         <IndividualGoalModal
+          key={selectedUser.id}
           open={open}
           onClose={() => {
             setOpen(false);
@@ -132,7 +133,7 @@ export function GoalsClient({ role }: GoalsClientProps) {
           <Button size="icon" variant="outline" onClick={prevMonth}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="min-w-[140px] text-center text-sm font-medium capitalize">
+          <span className="min-w-35 text-center text-sm font-medium capitalize">
             {format(selectedMonth, "MMMM yyyy", { locale: ptBR })}
           </span>
           <Button
@@ -178,6 +179,7 @@ export function GoalsClient({ role }: GoalsClientProps) {
           <TabsContent value="global" className="space-y-4">
             <div className="rounded-lg border bg-card p-5">
               <GlobalGoalSection
+                key={monthStr}
                 month={monthStr}
                 goal={data?.goal ?? null}
                 role={role}

@@ -12,29 +12,12 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { IndividualGoalModal } from "./individual-goal-modal";
+import { formatPercent } from "@/lib/formatting";
 import type { UserRole } from "@/lib/generated/prisma/enums";
-
-interface IndividualGoalItem {
-  id: string;
-  user_id: string;
-  goal_id: string;
-  cash_goal: number;
-  sales_goal: number | null;
-  rate_answer: number | null;
-  rate_schedule: number | null;
-  rate_noshow_max: number | null;
-  rate_close: number | null;
-  user: {
-    id: string;
-    name: string;
-    role: string;
-    avatar_url: string | null;
-  };
-}
+import type { IndividualGoalItem } from "./types";
 
 function fmtRate(v: number | null): string {
-  if (v === null) return "—";
-  return (v * 100).toFixed(1) + "%";
+  return v === null ? "—" : formatPercent(v);
 }
 
 interface RatesSectionProps {
@@ -52,7 +35,6 @@ export function RatesSection({
 }: RatesSectionProps) {
   const isAdmin = role === "admin";
   const [editing, setEditing] = useState<IndividualGoalItem | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
 
   if (individualGoals.length === 0) {
     return (
@@ -60,11 +42,6 @@ export function RatesSection({
         Nenhuma meta individual definida para este mês.
       </p>
     );
-  }
-
-  function openModal(item: IndividualGoalItem) {
-    setEditing(item);
-    setModalOpen(true);
   }
 
   return (
@@ -110,7 +87,7 @@ export function RatesSection({
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => openModal(ig)}
+                      onClick={() => setEditing(ig)}
                     >
                       Editar
                     </Button>
@@ -124,15 +101,12 @@ export function RatesSection({
 
       {editing && (
         <IndividualGoalModal
-          open={modalOpen}
-          onClose={() => {
-            setModalOpen(false);
-            setEditing(null);
-          }}
+          key={editing.id}
+          open
+          onClose={() => setEditing(null)}
           onSaved={() => {
-            onSaved();
-            setModalOpen(false);
             setEditing(null);
+            onSaved();
           }}
           goalId={goalId}
           user={editing.user}
