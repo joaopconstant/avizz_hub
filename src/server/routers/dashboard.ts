@@ -54,19 +54,31 @@ export const dashboardRouter = createTRPCRouter({
     if (role === "closer") {
       const [sales, reports] = await Promise.all([
         db.sale.findMany({
-          where: { closer_id: userId, sale_date: { gte: startDate, lt: endDate } },
+          where: {
+            closer_id: userId,
+            sale_date: { gte: startDate, lt: endDate },
+          },
           select: { cash_value: true, counts_as_sale: true },
         }),
         db.dailyReport.findMany({
-          where: { user_id: userId, report_date: { gte: startDate, lt: endDate } },
+          where: {
+            user_id: userId,
+            report_date: { gte: startDate, lt: endDate },
+          },
           select: { calls_done: true, closer_no_shows: true },
         }),
       ]);
 
-      const cashRealized = sales.reduce((sum, s) => sum + Number(s.cash_value), 0);
+      const cashRealized = sales.reduce(
+        (sum, s) => sum + Number(s.cash_value),
+        0,
+      );
       const salesCount = sales.filter((s) => s.counts_as_sale).length;
       const totalCalls = reports.reduce((s, r) => s + (r.calls_done ?? 0), 0);
-      const totalNoShows = reports.reduce((s, r) => s + (r.closer_no_shows ?? 0), 0);
+      const totalNoShows = reports.reduce(
+        (s, r) => s + (r.closer_no_shows ?? 0),
+        0,
+      );
 
       return {
         defined: true as const,
@@ -87,21 +99,36 @@ export const dashboardRouter = createTRPCRouter({
           select: { cash_value: true, counts_as_sale: true },
         }),
         db.dailyReport.findMany({
-          where: { user_id: userId, report_date: { gte: startDate, lt: endDate } },
+          where: {
+            user_id: userId,
+            report_date: { gte: startDate, lt: endDate },
+          },
           select: { calls_answered: true, meetings_held: true },
         }),
       ]);
 
-      const cashRealized = sales.reduce((sum, s) => sum + Number(s.cash_value), 0);
-      const totalAnswered = reports.reduce((s, r) => s + (r.calls_answered ?? 0), 0);
-      const totalMeetings = reports.reduce((s, r) => s + (r.meetings_held ?? 0), 0);
+      const cashRealized = sales.reduce(
+        (sum, s) => sum + Number(s.cash_value),
+        0,
+      );
+      const totalAnswered = reports.reduce(
+        (s, r) => s + (r.calls_answered ?? 0),
+        0,
+      );
+      const totalMeetings = reports.reduce(
+        (s, r) => s + (r.meetings_held ?? 0),
+        0,
+      );
 
       return {
         defined: true as const,
         role: "sdr" as const,
         cashGoal: Number(individualGoal.cash_goal),
         cashRealized,
-        noShowRate: totalMeetings > 0 ? (totalMeetings - totalAnswered) / totalMeetings : 0,
+        noShowRate:
+          totalMeetings > 0
+            ? (totalMeetings - totalAnswered) / totalMeetings
+            : 0,
         noShowMax: Number(individualGoal.rate_noshow_max ?? 0),
       };
     }
@@ -127,8 +154,11 @@ export const dashboardRouter = createTRPCRouter({
       const { session, db } = ctx;
       const role = session.user.role;
       const userId = session.user.id;
-      const startDate = input?.from ? new Date(input.from) : startOfMonth(new Date());
+      const startDate = input?.from
+        ? new Date(input.from)
+        : startOfMonth(new Date());
       const endDate = input?.to ? new Date(input.to) : endOfMonth(startDate);
+      const monthStart = startOfMonth(startDate);
 
       const [sales, activeAdvances, goal] = await Promise.all([
         db.sale.findMany({
@@ -146,17 +176,20 @@ export const dashboardRouter = createTRPCRouter({
           where: { is_converted: false },
         }),
         db.goal.findFirst({
-          where: { month: startOfMonth(startDate) },
+          where: { month: monthStart },
         }),
       ]);
 
       const cashRealized = sales.reduce((s, x) => s + Number(x.cash_value), 0);
       const netRealized = sales.reduce((s, x) => s + Number(x.net_value), 0);
-      const futureRevenue = sales.reduce((s, x) => s + Number(x.future_revenue), 0);
+      const futureRevenue = sales.reduce(
+        (s, x) => s + Number(x.future_revenue),
+        0,
+      );
       const salesCount = sales.filter((x) => x.counts_as_sale).length;
 
       // Projeção de caixa baseada em dias úteis
-      const workdays = getWorkdaysInMonth(startOfMonth(startDate));
+      const workdays = getWorkdaysInMonth(monthStart);
       const today = startOfDay(new Date());
       const elapsed = workdays.filter((d) => !isAfter(d, today)).length;
       const cashProjected =
@@ -171,7 +204,8 @@ export const dashboardRouter = createTRPCRouter({
           .filter((s) => s.closer_id === userId || s.sdr_id === userId)
           .reduce((sum, s) => sum + Number(s.cash_value), 0);
         mySalesCount = sales.filter(
-          (s) => s.counts_as_sale && (s.closer_id === userId || s.sdr_id === userId),
+          (s) =>
+            s.counts_as_sale && (s.closer_id === userId || s.sdr_id === userId),
         ).length;
       }
 
@@ -196,7 +230,9 @@ export const dashboardRouter = createTRPCRouter({
     .input(rangeInput.extend({ userId: z.string().optional() }).optional())
     .query(async ({ ctx, input }) => {
       const { db, session } = ctx;
-      const startDate = input?.from ? new Date(input.from) : startOfMonth(new Date());
+      const startDate = input?.from
+        ? new Date(input.from)
+        : startOfMonth(new Date());
       const endDate = input?.to ? new Date(input.to) : endOfMonth(startDate);
       const role = session.user.role;
 
@@ -210,7 +246,10 @@ export const dashboardRouter = createTRPCRouter({
 
       const [reports, salesCount] = await Promise.all([
         db.dailyReport.findMany({
-          where: { report_date: { gte: startDate, lte: endDate }, ...userFilter },
+          where: {
+            report_date: { gte: startDate, lte: endDate },
+            ...userFilter,
+          },
           select: {
             calls_total: true,
             calls_answered: true,
@@ -228,9 +267,18 @@ export const dashboardRouter = createTRPCRouter({
       ]);
 
       const callsTotal = reports.reduce((s, r) => s + (r.calls_total ?? 0), 0);
-      const callsAnswered = reports.reduce((s, r) => s + (r.calls_answered ?? 0), 0);
-      const meetingsScheduled = reports.reduce((s, r) => s + (r.meetings_scheduled ?? 0), 0);
-      const meetingsHeld = reports.reduce((s, r) => s + (r.meetings_held ?? 0), 0);
+      const callsAnswered = reports.reduce(
+        (s, r) => s + (r.calls_answered ?? 0),
+        0,
+      );
+      const meetingsScheduled = reports.reduce(
+        (s, r) => s + (r.meetings_scheduled ?? 0),
+        0,
+      );
+      const meetingsHeld = reports.reduce(
+        (s, r) => s + (r.meetings_held ?? 0),
+        0,
+      );
 
       const pct = (num: number, den: number) =>
         den > 0 ? Math.round((num / den) * 1000) / 10 : null;
@@ -269,41 +317,44 @@ export const dashboardRouter = createTRPCRouter({
     .input(rangeInput.optional())
     .query(async ({ ctx, input }) => {
       const { db } = ctx;
-      const startDate = input?.from ? new Date(input.from) : startOfMonth(new Date());
+      const startDate = input?.from
+        ? new Date(input.from)
+        : startOfMonth(new Date());
       const endDate = input?.to ? new Date(input.to) : endOfMonth(startDate);
 
       // Closers e SDRs ativos
-      const [closers, sdrs, sales, individualGoals, reports] = await Promise.all([
-        db.user.findMany({
-          where: { role: "closer", is_active: true },
-          select: { id: true, name: true, avatar_url: true },
-        }),
-        db.user.findMany({
-          where: { role: "sdr", is_active: true },
-          select: { id: true, name: true, avatar_url: true },
-        }),
-        db.sale.findMany({
-          where: { sale_date: { gte: startDate, lte: endDate } },
-          select: {
-            closer_id: true,
-            sdr_id: true,
-            cash_value: true,
-            counts_as_sale: true,
-          },
-        }),
-        db.individualGoal.findMany({
-          where: { goal: { month: startOfMonth(startDate) } },
-          select: { user_id: true, cash_goal: true },
-        }),
-        db.dailyReport.findMany({
-          where: { report_date: { gte: startDate, lte: endDate } },
-          select: {
-            user_id: true,
-            meetings_scheduled: true,
-            meetings_held: true,
-          },
-        }),
-      ]);
+      const [closers, sdrs, sales, individualGoals, reports] =
+        await Promise.all([
+          db.user.findMany({
+            where: { role: "closer", is_active: true },
+            select: { id: true, name: true, avatar_url: true },
+          }),
+          db.user.findMany({
+            where: { role: "sdr", is_active: true },
+            select: { id: true, name: true, avatar_url: true },
+          }),
+          db.sale.findMany({
+            where: { sale_date: { gte: startDate, lte: endDate } },
+            select: {
+              closer_id: true,
+              sdr_id: true,
+              cash_value: true,
+              counts_as_sale: true,
+            },
+          }),
+          db.individualGoal.findMany({
+            where: { goal: { month: startOfMonth(startDate) } },
+            select: { user_id: true, cash_goal: true },
+          }),
+          db.dailyReport.findMany({
+            where: { report_date: { gte: startDate, lte: endDate } },
+            select: {
+              user_id: true,
+              meetings_scheduled: true,
+              meetings_held: true,
+            },
+          }),
+        ]);
 
       const goalByUser = new Map(
         individualGoals.map((g) => [g.user_id, Number(g.cash_goal)]),
@@ -316,7 +367,10 @@ export const dashboardRouter = createTRPCRouter({
             userId: u.id,
             name: u.name,
             avatarUrl: u.avatar_url,
-            cashRealized: userSales.reduce((s, x) => s + Number(x.cash_value), 0),
+            cashRealized: userSales.reduce(
+              (s, x) => s + Number(x.cash_value),
+              0,
+            ),
             salesCount: userSales.filter((s) => s.counts_as_sale).length,
             cashGoal: goalByUser.get(u.id) ?? null,
           };
@@ -331,7 +385,10 @@ export const dashboardRouter = createTRPCRouter({
             userId: u.id,
             name: u.name,
             avatarUrl: u.avatar_url,
-            cashRealized: userSales.reduce((s, x) => s + Number(x.cash_value), 0),
+            cashRealized: userSales.reduce(
+              (s, x) => s + Number(x.cash_value),
+              0,
+            ),
             meetingsScheduled: userReports.reduce(
               (s, r) => s + (r.meetings_scheduled ?? 0),
               0,
@@ -363,10 +420,7 @@ export const dashboardRouter = createTRPCRouter({
         }),
         db.sale.findMany({
           where: {
-            OR: [
-              { closer_id: input.userId },
-              { sdr_id: input.userId },
-            ],
+            OR: [{ closer_id: input.userId }, { sdr_id: input.userId }],
             sale_date: { gte: startDate, lte: endDate },
           },
           select: {
@@ -405,12 +459,18 @@ export const dashboardRouter = createTRPCRouter({
 
       // Agregados SDR
       const callsTotal = reports.reduce((s, r) => s + (r.calls_total ?? 0), 0);
-      const callsAnswered = reports.reduce((s, r) => s + (r.calls_answered ?? 0), 0);
+      const callsAnswered = reports.reduce(
+        (s, r) => s + (r.calls_answered ?? 0),
+        0,
+      );
       const meetingsScheduled = reports.reduce(
         (s, r) => s + (r.meetings_scheduled ?? 0),
         0,
       );
-      const meetingsHeld = reports.reduce((s, r) => s + (r.meetings_held ?? 0), 0);
+      const meetingsHeld = reports.reduce(
+        (s, r) => s + (r.meetings_held ?? 0),
+        0,
+      );
 
       // Agregados Closer
       const callsDone = reports.reduce((s, r) => s + (r.calls_done ?? 0), 0);
@@ -449,7 +509,9 @@ export const dashboardRouter = createTRPCRouter({
     .input(rangeInput.optional())
     .query(async ({ ctx, input }) => {
       const { db } = ctx;
-      const startDate = input?.from ? new Date(input.from) : startOfMonth(new Date());
+      const startDate = input?.from
+        ? new Date(input.from)
+        : startOfMonth(new Date());
       const endDate = input?.to ? new Date(input.to) : endOfMonth(startDate);
 
       // Busca MoM (6 meses) + mês atual em query única
@@ -477,29 +539,44 @@ export const dashboardRouter = createTRPCRouter({
       const prazoMap = new Map<number, { count: number; total: number }>();
       const originMap = new Map<string, { count: number; total: number }>();
       const productMap = new Map<string, { count: number; total: number }>();
-      let validCount = 0, validTotal = 0, upsellCount = 0, upsellTotal = 0;
+      let validCount = 0,
+        validTotal = 0,
+        upsellCount = 0,
+        upsellTotal = 0;
 
       for (const s of sales) {
         const cash = Number(s.cash_value);
 
-        if (s.counts_as_sale) { validCount++; validTotal += cash; }
-        else { upsellCount++; upsellTotal += cash; }
+        if (s.counts_as_sale) {
+          validCount++;
+          validTotal += cash;
+        } else {
+          upsellCount++;
+          upsellTotal += cash;
+        }
 
-        const tier = tierMap.get(s.client_revenue_tier) ?? { count: 0, total: 0 };
-        tier.count++; tier.total += cash;
+        const tier = tierMap.get(s.client_revenue_tier) ?? {
+          count: 0,
+          total: 0,
+        };
+        tier.count++;
+        tier.total += cash;
         tierMap.set(s.client_revenue_tier, tier);
 
         const prazo = prazoMap.get(s.contract_months) ?? { count: 0, total: 0 };
-        prazo.count++; prazo.total += cash;
+        prazo.count++;
+        prazo.total += cash;
         prazoMap.set(s.contract_months, prazo);
 
         const origin = originMap.get(s.sale_origin) ?? { count: 0, total: 0 };
-        origin.count++; origin.total += cash;
+        origin.count++;
+        origin.total += cash;
         originMap.set(s.sale_origin, origin);
 
         const prodName = s.product.name;
         const prod = productMap.get(prodName) ?? { count: 0, total: 0 };
-        prod.count++; prod.total += cash;
+        prod.count++;
+        prod.total += cash;
         productMap.set(prodName, prod);
       }
 
@@ -510,11 +587,19 @@ export const dashboardRouter = createTRPCRouter({
         const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
         momByKey.set(key, (momByKey.get(key) ?? 0) + Number(s.cash_value));
       }
-      const momData: { month: string; cashRealized: number; delta: number | null }[] = [];
+      const momData: {
+        month: string;
+        cashRealized: number;
+        delta: number | null;
+      }[] = [];
       for (let i = 5; i >= 0; i--) {
         const m = subMonths(startDate, i);
         const key = `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, "0")}`;
-        momData.push({ month: key, cashRealized: momByKey.get(key) ?? 0, delta: null });
+        momData.push({
+          month: key,
+          cashRealized: momByKey.get(key) ?? 0,
+          delta: null,
+        });
       }
       for (let i = 1; i < momData.length; i++) {
         const prev = momData[i - 1]!.cashRealized;
@@ -532,9 +617,16 @@ export const dashboardRouter = createTRPCRouter({
           .map(([tier, data]) => ({ tier, ...data }))
           .sort((a, b) => b.total - a.total),
         prazoComposition: [...prazoMap.entries()]
-          .map(([months, data]) => ({ months, count: data.count, tme: data.count > 0 ? data.total / data.count : 0 }))
+          .map(([months, data]) => ({
+            months,
+            count: data.count,
+            tme: data.count > 0 ? data.total / data.count : 0,
+          }))
           .sort((a, b) => a.months - b.months),
-        saleOrigins: [...originMap.entries()].map(([origin, data]) => ({ origin, ...data })),
+        saleOrigins: [...originMap.entries()].map(([origin, data]) => ({
+          origin,
+          ...data,
+        })),
         topProducts: [...productMap.entries()]
           .map(([productName, data]) => ({ productName, ...data }))
           .sort((a, b) => b.total - a.total),

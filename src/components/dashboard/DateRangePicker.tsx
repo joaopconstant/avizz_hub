@@ -20,11 +20,6 @@ interface DateRangePickerProps {
 }
 
 function formatRange(from: Date, to: Date): string {
-  const fromMonth = format(from, "MMM", { locale: ptBR });
-  const toMonth = format(to, "MMM", { locale: ptBR });
-  const fromYear = format(from, "yyyy");
-  const toYear = format(to, "yyyy");
-
   const isFullMonth =
     from.getDate() === 1 &&
     to.getDate() === endOfMonth(from).getDate() &&
@@ -32,19 +27,14 @@ function formatRange(from: Date, to: Date): string {
     from.getFullYear() === to.getFullYear();
 
   if (isFullMonth) {
-    return `${format(from, "MMMM yyyy", { locale: ptBR })}`;
+    return format(from, "MMMM yyyy", { locale: ptBR });
   }
 
-  if (fromYear === toYear) {
+  if (from.getFullYear() === to.getFullYear()) {
     return `${format(from, "d MMM", { locale: ptBR })} – ${format(to, "d MMM yyyy", { locale: ptBR })}`;
   }
 
   return `${format(from, "d MMM yyyy", { locale: ptBR })} – ${format(to, "d MMM yyyy", { locale: ptBR })}`;
-
-  void fromMonth;
-  void toMonth;
-  void fromYear;
-  void toYear;
 }
 
 export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
@@ -56,9 +46,13 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
 
   const today = new Date();
 
+  function handleOpenChange(isOpen: boolean) {
+    if (isOpen) setPending({ from: value.from, to: value.to });
+    setOpen(isOpen);
+  }
+
   function applyPreset(from: Date, to: Date) {
     onChange({ from, to });
-    setPending({ from, to });
     setOpen(false);
   }
 
@@ -71,11 +65,13 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="gap-1.5">
           <HugeiconsIcon icon={Calendar03Icon} size={14} />
-          <span className="capitalize">{formatRange(value.from, value.to)}</span>
+          <span className="capitalize">
+            {formatRange(value.from, value.to)}
+          </span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="end">

@@ -1,13 +1,10 @@
 "use client";
 
-import { api } from "@/trpc/react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/formatting";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 type SaleRow = {
   id: string;
@@ -28,8 +25,6 @@ type SaleRow = {
 
 type SalesListProps = {
   sales: SaleRow[];
-  currentUserId: string;
-  currentRole: string;
   onDelete: (id: string) => void;
   isDeleting?: boolean;
 };
@@ -53,19 +48,15 @@ const ORIGIN_LABELS: Record<string, string> = {
 
 export function SalesList({
   sales,
-  currentUserId,
-  currentRole,
   onDelete,
   isDeleting,
 }: SalesListProps) {
-  const isAdminOrHead = ["admin", "head"].includes(currentRole);
-
   if (sales.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <p className="text-sm text-muted-foreground">Nenhuma venda registrada ainda.</p>
         <p className="text-xs text-muted-foreground mt-1">
-          Clique em "Nova Venda" para registrar.
+          Clique em &ldquo;Nova Venda&rdquo; para registrar.
         </p>
       </div>
     );
@@ -88,8 +79,6 @@ export function SalesList({
         </thead>
         <tbody className="divide-y">
           {sales.map((sale) => {
-            const canDelete =
-              isAdminOrHead || sale.closer.name === currentUserId;
             const formattedDate = format(parseISO(sale.sale_date), "dd/MM/yyyy", { locale: ptBR });
 
             return (

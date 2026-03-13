@@ -6,8 +6,6 @@ import { Button } from "@/components/ui/button";
 import { RegisterSaleModal } from "@/components/sales/register-sale-modal";
 import { formatCurrency } from "@/lib/formatting";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 type AdvanceData = {
   id: string;
   lead_name: string;
@@ -21,8 +19,6 @@ type AdvanceConvertDialogProps = {
   onSuccess: () => void;
   onClose: () => void;
 };
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function AdvanceConvertDialog({
   advance,
@@ -49,7 +45,9 @@ export function AdvanceConvertDialog({
 
           <div className="rounded-lg bg-muted/50 border p-3 mb-5 space-y-1">
             <p className="text-sm font-medium">{advance.lead_name}</p>
-            <p className="text-xs text-muted-foreground">{advance.company_name}</p>
+            <p className="text-xs text-muted-foreground">
+              {advance.company_name}
+            </p>
             <p className="text-sm font-semibold mt-1">
               {formatCurrency(advance.estimated_value)}
             </p>
@@ -64,7 +62,11 @@ export function AdvanceConvertDialog({
             >
               Cancelar
             </Button>
-            <Button size="sm" className="flex-1" onClick={() => setStep("form")}>
+            <Button
+              size="sm"
+              className="flex-1"
+              onClick={() => setStep("form")}
+            >
               Continuar
             </Button>
           </div>

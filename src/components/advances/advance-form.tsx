@@ -2,12 +2,12 @@
 
 import { useForm } from "react-hook-form";
 import { useEffect } from "react";
-import { format } from "date-fns";
-
 import { api } from "@/trpc/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import { ADVANCE_STATUS_FLAGS } from "@/lib/constants";
 import {
   Select,
   SelectContent,
@@ -15,10 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
-import { ADVANCE_STATUS_FLAGS } from "@/lib/constants";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 type FormValues = {
   lead_name: string;
@@ -48,9 +44,12 @@ type AdvanceFormProps = {
   onCancel: () => void;
 };
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
-export function AdvanceForm({ existingAdvance, report_id, onSuccess, onCancel }: AdvanceFormProps) {
+export function AdvanceForm({
+  existingAdvance,
+  report_id,
+  onSuccess,
+  onCancel,
+}: AdvanceFormProps) {
   const utils = api.useUtils();
 
   const {
@@ -64,7 +63,9 @@ export function AdvanceForm({ existingAdvance, report_id, onSuccess, onCancel }:
     defaultValues: {
       lead_name: existingAdvance?.lead_name ?? "",
       company_name: existingAdvance?.company_name ?? "",
-      estimated_value: existingAdvance ? String(existingAdvance.estimated_value) : "",
+      estimated_value: existingAdvance
+        ? String(existingAdvance.estimated_value)
+        : "",
       deadline: existingAdvance?.deadline ?? "",
       lead_score: existingAdvance?.lead_score ?? 0,
       status_flags: existingAdvance?.status_flags ?? [],
@@ -110,7 +111,10 @@ export function AdvanceForm({ existingAdvance, report_id, onSuccess, onCancel }:
   const toggleFlag = (value: string) => {
     const current = statusFlags ?? [];
     if (current.includes(value)) {
-      setValue("status_flags", current.filter((f) => f !== value));
+      setValue(
+        "status_flags",
+        current.filter((f) => f !== value),
+      );
     } else {
       setValue("status_flags", [...current, value]);
     }
@@ -139,11 +143,12 @@ export function AdvanceForm({ existingAdvance, report_id, onSuccess, onCancel }:
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-
       {/* Lead e Empresa */}
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
-          <Label htmlFor="lead_name" className="text-xs">Nome do Lead *</Label>
+          <Label htmlFor="lead_name" className="text-xs">
+            Nome do Lead *
+          </Label>
           <Input
             id="lead_name"
             type="text"
@@ -152,7 +157,9 @@ export function AdvanceForm({ existingAdvance, report_id, onSuccess, onCancel }:
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="company_name" className="text-xs">Empresa *</Label>
+          <Label htmlFor="company_name" className="text-xs">
+            Empresa *
+          </Label>
           <Input
             id="company_name"
             type="text"
@@ -165,7 +172,9 @@ export function AdvanceForm({ existingAdvance, report_id, onSuccess, onCancel }:
       {/* Valor e Deadline */}
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
-          <Label htmlFor="estimated_value" className="text-xs">Valor Estimado (R$) *</Label>
+          <Label htmlFor="estimated_value" className="text-xs">
+            Valor Estimado (R$) *
+          </Label>
           <Input
             id="estimated_value"
             type="number"
@@ -176,12 +185,10 @@ export function AdvanceForm({ existingAdvance, report_id, onSuccess, onCancel }:
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="deadline" className="text-xs">Prazo (opcional)</Label>
-          <Input
-            id="deadline"
-            type="date"
-            {...register("deadline")}
-          />
+          <Label htmlFor="deadline" className="text-xs">
+            Prazo (opcional)
+          </Label>
+          <Input id="deadline" type="date" {...register("deadline")} />
         </div>
       </div>
 

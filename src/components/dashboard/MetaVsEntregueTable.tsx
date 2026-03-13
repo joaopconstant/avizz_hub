@@ -25,10 +25,24 @@ interface MetaVsEntregueTableProps {
   onSelectUser?: (userId: string) => void;
 }
 
-function PctCell({ realized, goal }: { realized: number; goal: number | null }) {
-  if (!goal) return <TableCell className="text-right text-muted-foreground">—</TableCell>;
+function PctCell({
+  realized,
+  goal,
+}: {
+  realized: number;
+  goal: number | null;
+}) {
+  if (!goal)
+    return (
+      <TableCell className="text-right text-muted-foreground">—</TableCell>
+    );
   const pct = Math.round((realized / goal) * 100);
-  const color = pct >= 80 ? "text-green-600" : pct >= 50 ? "text-amber-500" : "text-red-500";
+  const color =
+    pct >= 80
+      ? "text-green-600"
+      : pct >= 50
+        ? "text-amber-500"
+        : "text-red-500";
   return (
     <TableCell className={`text-right font-medium ${color}`}>{pct}%</TableCell>
   );
@@ -62,14 +76,18 @@ function UserTable({
             {rows.map((row) => (
               <TableRow
                 key={row.userId}
-                className={onSelectUser ? "cursor-pointer hover:bg-muted/50" : ""}
+                className={
+                  onSelectUser ? "cursor-pointer hover:bg-muted/50" : ""
+                }
                 onClick={() => onSelectUser?.(row.userId)}
               >
                 <TableCell className="font-medium">{row.name}</TableCell>
                 <TableCell className="text-right text-muted-foreground">
                   {row.cashGoal !== null ? formatCurrency(row.cashGoal) : "—"}
                 </TableCell>
-                <TableCell className="text-right">{formatCurrency(row.cashRealized)}</TableCell>
+                <TableCell className="text-right">
+                  {formatCurrency(row.cashRealized)}
+                </TableCell>
                 <PctCell realized={row.cashRealized} goal={row.cashGoal} />
               </TableRow>
             ))}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { startOfMonth, endOfMonth } from "date-fns";
 import { format } from "date-fns";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -60,6 +60,17 @@ export function DashboardClient({ role, name }: DashboardClientProps) {
     if (isAdminOrHead(role)) void insights.refetch();
   }, [summary, funnel, rankings, insights, role]);
 
+  const funnelUsers = useMemo(
+    () =>
+      isAdminOrHead(role) && rankings.data
+        ? [
+            ...rankings.data.closers.map((c) => ({ userId: c.userId, name: c.name })),
+            ...rankings.data.sdrs.map((u) => ({ userId: u.userId, name: u.name })),
+          ]
+        : undefined,
+    [rankings.data, role],
+  );
+
   const isLoading =
     summary.isLoading || funnel.isLoading || rankings.isLoading;
 
@@ -100,13 +111,6 @@ export function DashboardClient({ role, name }: DashboardClientProps) {
     salesGoal: null,
     salesCount: 0,
   }));
-
-  const funnelUsers = isAdminOrHead(role)
-    ? [
-        ...rankings.data.closers.map((c) => ({ userId: c.userId, name: c.name })),
-        ...rankings.data.sdrs.map((u) => ({ userId: u.userId, name: u.name })),
-      ]
-    : undefined;
 
   return (
     <div className="space-y-6">

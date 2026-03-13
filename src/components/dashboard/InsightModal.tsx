@@ -63,13 +63,21 @@ export function InsightModal({ type, data, onClose }: InsightModalProps) {
             <TableBody>
               <TableRow>
                 <TableCell className="font-medium">Vendas Válidas</TableCell>
-                <TableCell className="text-right">{data.validasVsUpsells.valid.count}</TableCell>
-                <TableCell className="text-right">{formatCurrency(data.validasVsUpsells.valid.total)}</TableCell>
+                <TableCell className="text-right">
+                  {data.validasVsUpsells.valid.count}
+                </TableCell>
+                <TableCell className="text-right">
+                  {formatCurrency(data.validasVsUpsells.valid.total)}
+                </TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Upsells</TableCell>
-                <TableCell className="text-right">{data.validasVsUpsells.upsell.count}</TableCell>
-                <TableCell className="text-right">{formatCurrency(data.validasVsUpsells.upsell.total)}</TableCell>
+                <TableCell className="text-right">
+                  {data.validasVsUpsells.upsell.count}
+                </TableCell>
+                <TableCell className="text-right">
+                  {formatCurrency(data.validasVsUpsells.upsell.total)}
+                </TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -88,13 +96,20 @@ export function InsightModal({ type, data, onClose }: InsightModalProps) {
               {data.mom.map((m) => (
                 <TableRow key={m.month}>
                   <TableCell>{m.month}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(m.cashRealized)}</TableCell>
+                  <TableCell className="text-right">
+                    {formatCurrency(m.cashRealized)}
+                  </TableCell>
                   <TableCell className="text-right">
                     {m.delta === null ? (
                       <span className="text-muted-foreground">—</span>
                     ) : (
-                      <span className={m.delta >= 0 ? "text-green-600" : "text-red-500"}>
-                        {m.delta >= 0 ? "+" : ""}{m.delta.toFixed(1)}%
+                      <span
+                        className={
+                          m.delta >= 0 ? "text-green-600" : "text-red-500"
+                        }
+                      >
+                        {m.delta >= 0 ? "+" : ""}
+                        {m.delta.toFixed(1)}%
                       </span>
                     )}
                   </TableCell>
@@ -118,7 +133,9 @@ export function InsightModal({ type, data, onClose }: InsightModalProps) {
                 <TableRow key={c.tier}>
                   <TableCell>{tierLabel(c.tier)}</TableCell>
                   <TableCell className="text-right">{c.count}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(c.total)}</TableCell>
+                  <TableCell className="text-right">
+                    {formatCurrency(c.total)}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -137,9 +154,13 @@ export function InsightModal({ type, data, onClose }: InsightModalProps) {
             <TableBody>
               {data.prazoComposition.map((p) => (
                 <TableRow key={p.months}>
-                  <TableCell>{p.months} {p.months === 1 ? "mês" : "meses"}</TableCell>
+                  <TableCell>
+                    {p.months} {p.months === 1 ? "mês" : "meses"}
+                  </TableCell>
                   <TableCell className="text-right">{p.count}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(p.tme)}</TableCell>
+                  <TableCell className="text-right">
+                    {formatCurrency(p.tme)}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -160,7 +181,9 @@ export function InsightModal({ type, data, onClose }: InsightModalProps) {
                 <TableRow key={o.origin}>
                   <TableCell>{originLabel(o.origin)}</TableCell>
                   <TableCell className="text-right">{o.count}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(o.total)}</TableCell>
+                  <TableCell className="text-right">
+                    {formatCurrency(o.total)}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -181,7 +204,9 @@ export function InsightModal({ type, data, onClose }: InsightModalProps) {
                 <TableRow key={p.productName}>
                   <TableCell>{p.productName}</TableCell>
                   <TableCell className="text-right">{p.count}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(p.total)}</TableCell>
+                  <TableCell className="text-right">
+                    {formatCurrency(p.total)}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

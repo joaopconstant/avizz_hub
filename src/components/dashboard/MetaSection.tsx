@@ -19,7 +19,8 @@ function HeroBar({
   goal: number | null;
 }) {
   const pct = goal && goal > 0 ? Math.min((realized / goal) * 100, 100) : 0;
-  const pctDisplay = goal && goal > 0 ? Math.round((realized / goal) * 100) : null;
+  const pctDisplay =
+    goal && goal > 0 ? Math.round((realized / goal) * 100) : null;
 
   return (
     <div className="relative h-5 rounded-full bg-muted overflow-hidden">
@@ -52,13 +53,17 @@ function HeroMetric({
   size?: "lg" | "md" | "sm";
 }) {
   const valueClass =
-    size === "lg" ? "text-3xl font-bold tabular-nums text-primary" :
-    size === "md" ? "text-2xl font-bold tabular-nums text-primary" :
-    "text-xl font-bold tabular-nums";
+    size === "lg"
+      ? "text-3xl font-bold tabular-nums text-primary"
+      : size === "md"
+        ? "text-2xl font-bold tabular-nums text-primary"
+        : "text-xl font-bold tabular-nums";
   const subClass =
-    size === "lg" ? "text-base text-muted-foreground" :
-    size === "md" ? "text-sm text-muted-foreground" :
-    "text-xs text-muted-foreground";
+    size === "lg"
+      ? "text-base text-muted-foreground"
+      : size === "md"
+        ? "text-sm text-muted-foreground"
+        : "text-xs text-muted-foreground";
 
   return (
     <div className="space-y-2">
@@ -91,7 +96,9 @@ export function MetaSection({
 
       <HeroMetric
         displayValue={formatCurrency(cashRealized)}
-        displayGoal={cashGoal !== null ? `/ ${formatCurrency(cashGoal)}` : undefined}
+        displayGoal={
+          cashGoal !== null ? `/ ${formatCurrency(cashGoal)}` : undefined
+        }
         realized={cashRealized}
         goal={cashGoal}
         size="lg"

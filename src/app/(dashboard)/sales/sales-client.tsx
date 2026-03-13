@@ -95,8 +95,6 @@ export function SalesClient({ role, userId }: SalesClientProps) {
         ) : (
           <SalesList
             sales={sales}
-            currentUserId={userId}
-            currentRole={role}
             onDelete={handleDelete}
             isDeleting={deleteSale.isPending}
           />

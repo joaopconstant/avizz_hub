@@ -41,7 +41,9 @@ export function InsightsSection({ data, onOpenInsight }: InsightsSectionProps) {
   const topTier = data.clientProfile[0];
   const topProduct = data.topProducts[0];
   // .slice() prevents in-place mutation of the prop
-  const topOrigin = data.saleOrigins.slice().sort((a, b) => b.count - a.count)[0];
+  const topOrigin = data.saleOrigins
+    .slice()
+    .sort((a, b) => b.count - a.count)[0];
 
   return (
     <div className="space-y-3">

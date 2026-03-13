@@ -6,7 +6,10 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "@/server/trpc";
-import { createSaleInputSchema, computeFinancials } from "@/server/routers/sales";
+import {
+  createSaleInputSchema,
+  computeFinancials,
+} from "@/server/routers/sales";
 
 // ─── Input schemas ────────────────────────────────────────────────────────────
 
@@ -14,7 +17,10 @@ const advanceInputSchema = z.object({
   lead_name: z.string().min(1),
   company_name: z.string().min(1),
   estimated_value: z.number().positive(),
-  deadline: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  deadline: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
   lead_score: z.number().int().min(0).max(5),
   status_flags: z.array(z.string()),
   sdr_id: z.string().optional(),
@@ -39,7 +45,11 @@ export const advancesRouter = createTRPCRouter({
 
       let deadline: Date | null = null;
       if (input.deadline) {
-        const [y, m, d] = input.deadline.split("-").map(Number) as [number, number, number];
+        const [y, m, d] = input.deadline.split("-").map(Number) as [
+          number,
+          number,
+          number,
+        ];
         deadline = new Date(Date.UTC(y, m - 1, d));
       }
 
@@ -93,7 +103,9 @@ export const advancesRouter = createTRPCRouter({
       const advances = await db.advance.findMany({
         where: {
           OR: [{ closer_id: targetUserId }, { sdr_id: targetUserId }],
-          ...(isConvertedFilter !== undefined && { is_converted: isConvertedFilter }),
+          ...(isConvertedFilter !== undefined && {
+            is_converted: isConvertedFilter,
+          }),
         },
         select: {
           id: true,
@@ -157,11 +169,15 @@ export const advancesRouter = createTRPCRouter({
       return {
         ...advance,
         estimated_value: Number(advance.estimated_value),
-        deadline: advance.deadline ? advance.deadline.toISOString().slice(0, 10) : null,
+        deadline: advance.deadline
+          ? advance.deadline.toISOString().slice(0, 10)
+          : null,
         convertedSale: advance.convertedSale
           ? {
               ...advance.convertedSale,
-              sale_date: advance.convertedSale.sale_date.toISOString().slice(0, 10),
+              sale_date: advance.convertedSale.sale_date
+                .toISOString()
+                .slice(0, 10),
               cash_value: Number(advance.convertedSale.cash_value),
             }
           : null,
@@ -202,7 +218,11 @@ export const advancesRouter = createTRPCRouter({
 
       let deadline: Date | null = null;
       if (input.data.deadline) {
-        const [y, m, d] = input.data.deadline.split("-").map(Number) as [number, number, number];
+        const [y, m, d] = input.data.deadline.split("-").map(Number) as [
+          number,
+          number,
+          number,
+        ];
         deadline = new Date(Date.UTC(y, m - 1, d));
       }
 

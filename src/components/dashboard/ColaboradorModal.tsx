@@ -1,6 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { api } from "@/trpc/react";
+import { formatCurrency } from "@/lib/formatting";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import {
   Dialog,
   DialogContent,
@@ -15,11 +19,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { api } from "@/trpc/react";
-import { formatCurrency } from "@/lib/formatting";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 
 interface ColaboradorModalProps {
   userId: string | null;
@@ -28,12 +27,17 @@ interface ColaboradorModalProps {
   onClose: () => void;
 }
 
-export function ColaboradorModal({ userId, from, to, onClose }: ColaboradorModalProps) {
+export function ColaboradorModal({
+  userId,
+  from,
+  to,
+  onClose,
+}: ColaboradorModalProps) {
   const { data, isLoading } = api.dashboard.getColaboradorDetail.useQuery(
     {
       userId: userId ?? "",
-      from: from.toISOString().slice(0, 10),
-      to: to.toISOString().slice(0, 10),
+      from: format(from, "yyyy-MM-dd"),
+      to: format(to, "yyyy-MM-dd"),
     },
     { enabled: !!userId },
   );
@@ -43,10 +47,16 @@ export function ColaboradorModal({ userId, from, to, onClose }: ColaboradorModal
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {data ? data.user.name : isLoading ? "Carregando..." : "Colaborador"}
+            {data
+              ? data.user.name
+              : isLoading
+                ? "Carregando..."
+                : "Colaborador"}
           </DialogTitle>
           {data && (
-            <p className="text-sm text-muted-foreground capitalize">{data.user.role}</p>
+            <p className="text-sm text-muted-foreground capitalize">
+              {data.user.role}
+            </p>
           )}
         </DialogHeader>
 
@@ -60,7 +70,9 @@ export function ColaboradorModal({ userId, from, to, onClose }: ColaboradorModal
             <div className="grid grid-cols-2 gap-3 py-2">
               <div className="rounded-lg border p-3">
                 <p className="text-xs text-muted-foreground">Caixa Realizado</p>
-                <p className="text-lg font-bold">{formatCurrency(data.cashRealized)}</p>
+                <p className="text-lg font-bold">
+                  {formatCurrency(data.cashRealized)}
+                </p>
               </div>
               <div className="rounded-lg border p-3">
                 <p className="text-xs text-muted-foreground">Vendas Válidas</p>
@@ -69,8 +81,12 @@ export function ColaboradorModal({ userId, from, to, onClose }: ColaboradorModal
               {data.user.role === "closer" && (
                 <>
                   <div className="rounded-lg border p-3">
-                    <p className="text-xs text-muted-foreground">Ligações Feitas</p>
-                    <p className="text-lg font-bold">{data.activity.callsDone}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Ligações Feitas
+                    </p>
+                    <p className="text-lg font-bold">
+                      {data.activity.callsDone}
+                    </p>
                   </div>
                   <div className="rounded-lg border p-3">
                     <p className="text-xs text-muted-foreground">No-Shows</p>
@@ -81,12 +97,20 @@ export function ColaboradorModal({ userId, from, to, onClose }: ColaboradorModal
               {data.user.role === "sdr" && (
                 <>
                   <div className="rounded-lg border p-3">
-                    <p className="text-xs text-muted-foreground">Agendamentos</p>
-                    <p className="text-lg font-bold">{data.activity.meetingsScheduled}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Agendamentos
+                    </p>
+                    <p className="text-lg font-bold">
+                      {data.activity.meetingsScheduled}
+                    </p>
                   </div>
                   <div className="rounded-lg border p-3">
-                    <p className="text-xs text-muted-foreground">Reuniões Realizadas</p>
-                    <p className="text-lg font-bold">{data.activity.meetingsHeld}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Reuniões Realizadas
+                    </p>
+                    <p className="text-lg font-bold">
+                      {data.activity.meetingsHeld}
+                    </p>
                   </div>
                 </>
               )}
@@ -110,13 +134,20 @@ export function ColaboradorModal({ userId, from, to, onClose }: ColaboradorModal
                       {data.sales.map((s) => (
                         <TableRow key={s.id}>
                           <TableCell>
-                            <p className="font-medium text-sm">{s.clientName}</p>
-                            <p className="text-xs text-muted-foreground">{s.clientCompany}</p>
+                            <p className="font-medium text-sm">
+                              {s.clientName}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {s.clientCompany}
+                            </p>
                           </TableCell>
                           <TableCell className="text-sm">
                             {s.productName}
                             {!s.countsAsSale && (
-                              <Badge variant="secondary" className="ml-1 text-xs">
+                              <Badge
+                                variant="secondary"
+                                className="ml-1 text-xs"
+                              >
                                 Upsell
                               </Badge>
                             )}
@@ -125,7 +156,9 @@ export function ColaboradorModal({ userId, from, to, onClose }: ColaboradorModal
                             {formatCurrency(s.cashValue)}
                           </TableCell>
                           <TableCell className="text-xs text-muted-foreground">
-                            {format(new Date(s.saleDate), "dd/MM", { locale: ptBR })}
+                            {format(new Date(s.saleDate), "dd/MM", {
+                              locale: ptBR,
+                            })}
                           </TableCell>
                         </TableRow>
                       ))}

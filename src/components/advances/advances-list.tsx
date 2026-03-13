@@ -2,14 +2,11 @@
 
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/formatting";
 import { ADVANCE_STATUS_FLAGS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 export type AdvanceRow = {
   id: string;
@@ -30,15 +27,11 @@ export type AdvanceRow = {
 
 type AdvancesListProps = {
   advances: AdvanceRow[];
-  currentUserId: string;
-  currentRole: string;
   onEdit: (advance: AdvanceRow) => void;
   onConvert: (advance: AdvanceRow) => void;
   onDelete: (id: string) => void;
   isDeleting?: boolean;
 };
-
-// ─── Score dots ───────────────────────────────────────────────────────────────
 
 function ScoreDots({ score }: { score: number }) {
   return (
@@ -56,25 +49,22 @@ function ScoreDots({ score }: { score: number }) {
   );
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function AdvancesList({
   advances,
-  currentUserId,
-  currentRole,
   onEdit,
   onConvert,
   onDelete,
   isDeleting,
 }: AdvancesListProps) {
-  const isAdminOrHead = ["admin", "head"].includes(currentRole);
 
   if (advances.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <p className="text-sm text-muted-foreground">Nenhum avanço registrado ainda.</p>
+        <p className="text-sm text-muted-foreground">
+          Nenhum avanço registrado ainda.
+        </p>
         <p className="text-xs text-muted-foreground mt-1">
-          Clique em "Novo Avanço" para começar.
+          Clique em &ldquo;Novo Avanço&rdquo; para começar.
         </p>
       </div>
     );
@@ -83,9 +73,9 @@ export function AdvancesList({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
       {advances.map((advance) => {
-        const flagLabels = ADVANCE_STATUS_FLAGS
-          .filter((f) => advance.status_flags.includes(f.value))
-          .map((f) => f.label);
+        const flagLabels = ADVANCE_STATUS_FLAGS.filter((f) =>
+          advance.status_flags.includes(f.value),
+        ).map((f) => f.label);
 
         const formattedDeadline = advance.deadline
           ? format(parseISO(advance.deadline), "dd/MM/yyyy", { locale: ptBR })
@@ -104,8 +94,12 @@ export function AdvancesList({
             {/* Header */}
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm leading-tight truncate">{advance.lead_name}</p>
-                <p className="text-xs text-muted-foreground truncate">{advance.company_name}</p>
+                <p className="font-medium text-sm leading-tight truncate">
+                  {advance.lead_name}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {advance.company_name}
+                </p>
               </div>
               {advance.is_converted ? (
                 <Badge variant="default" className="shrink-0 text-[10px]">
@@ -119,7 +113,9 @@ export function AdvancesList({
             {/* Valor estimado */}
             <div>
               <p className="text-xs text-muted-foreground">Valor estimado</p>
-              <p className="font-semibold">{formatCurrency(advance.estimated_value)}</p>
+              <p className="font-semibold">
+                {formatCurrency(advance.estimated_value)}
+              </p>
             </div>
 
             {/* Prazo */}
@@ -134,7 +130,11 @@ export function AdvancesList({
             {flagLabels.length > 0 && (
               <div className="flex flex-wrap gap-1">
                 {flagLabels.map((label) => (
-                  <Badge key={label} variant="outline" className="text-[10px] py-0">
+                  <Badge
+                    key={label}
+                    variant="outline"
+                    className="text-[10px] py-0"
+                  >
                     {label}
                   </Badge>
                 ))}

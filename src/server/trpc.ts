@@ -59,9 +59,7 @@ export const publicProcedure = t.procedure;
 
 export const protectedProcedure = t.procedure.use(enforceAuth);
 
-export const adminProcedure = t.procedure.use(
-  enforceRole("admin"),
-);
+export const adminProcedure = t.procedure.use(enforceRole("admin"));
 
 export const adminOrHeadProcedure = t.procedure.use(
   enforceRole("admin", "head"),
@@ -79,13 +77,9 @@ export const sdrProcedure = t.procedure.use(
   enforceRole("admin", "head", "sdr"),
 );
 
-export const goalsViewProcedure = t.procedure.use(
-  enforceRole("admin", "head"),
-);
+export const goalsViewProcedure = t.procedure.use(enforceRole("admin", "head"));
 
-export const goalsEditProcedure = t.procedure.use(
-  enforceRole("admin"),
-);
+export const goalsEditProcedure = t.procedure.use(enforceRole("admin"));
 
 export const dashboardGlobalProcedure = t.procedure.use(
   enforceRole("admin", "head", "operational"),

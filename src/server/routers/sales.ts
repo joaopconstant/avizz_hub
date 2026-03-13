@@ -37,7 +37,8 @@ export const createSaleInputSchema = z
       data.payment_method !== "card" ||
       (data.gateway_id && data.installments !== undefined),
     {
-      message: "Gateway e número de parcelas são obrigatórios para pagamento com cartão.",
+      message:
+        "Gateway e número de parcelas são obrigatórios para pagamento com cartão.",
       path: ["gateway_id"],
     },
   );
@@ -86,11 +87,23 @@ export async function computeFinancials(
   }
 
   const downPayment = input.down_payment ?? 0;
-  const cashValue = calculateCashValue(input.payment_method, input.contract_value, downPayment);
-  const netValue = calculateNetValue(input.payment_method, input.contract_value, ratePercent);
+  const cashValue = calculateCashValue(
+    input.payment_method,
+    input.contract_value,
+    downPayment,
+  );
+  const netValue = calculateNetValue(
+    input.payment_method,
+    input.contract_value,
+    ratePercent,
+  );
   const futureRevenue = calculateFutureRevenue(input.contract_value, cashValue);
 
-  const [y, m, d] = input.sale_date.split("-").map(Number) as [number, number, number];
+  const [y, m, d] = input.sale_date.split("-").map(Number) as [
+    number,
+    number,
+    number,
+  ];
   const saleDate = new Date(Date.UTC(y, m - 1, d));
 
   return {
@@ -226,8 +239,7 @@ export const salesRouter = createTRPCRouter({
       });
 
       const isOwner =
-        sale.closer_id === session.user.id ||
-        sale.sdr_id === session.user.id;
+        sale.closer_id === session.user.id || sale.sdr_id === session.user.id;
       const isAdminOrHead = ["admin", "head"].includes(session.user.role);
 
       if (!isOwner && !isAdminOrHead) {
@@ -274,7 +286,8 @@ export const salesRouter = createTRPCRouter({
       if (linkedAdvance) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "Esta venda está vinculada a um avanço convertido e não pode ser excluída.",
+          message:
+            "Esta venda está vinculada a um avanço convertido e não pode ser excluída.",
         });
       }
 

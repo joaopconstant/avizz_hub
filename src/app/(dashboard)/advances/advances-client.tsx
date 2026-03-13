@@ -97,8 +97,6 @@ export function AdvancesClient({ role, userId }: AdvancesClientProps) {
         ) : (
           <AdvancesList
             advances={advances}
-            currentUserId={userId}
-            currentRole={role}
             onEdit={setEditingAdvance}
             onConvert={setConvertingAdvance}
             onDelete={handleDelete}

@@ -33,7 +33,12 @@ const MIN_WIDTH = 40;
 // Fallback widths when all values are zero
 const FALLBACK_WIDTHS = [100, 85, 70, 57, 45];
 
-export function FunnelSection({ stages, users, selectedUserId, onSelectUser }: FunnelSectionProps) {
+export function FunnelSection({
+  stages,
+  users,
+  selectedUserId,
+  onSelectUser,
+}: FunnelSectionProps) {
   let maxCount = 0;
   let allZero = true;
   for (const s of stages) {
@@ -72,8 +77,11 @@ export function FunnelSection({ stages, users, selectedUserId, onSelectUser }: F
 
       <div className="flex flex-col items-center gap-2">
         {stages.map((stage, idx) => {
-          const dataWidth = (stage.count / maxCount) * (MAX_WIDTH - MIN_WIDTH) + MIN_WIDTH;
-          const width = allZero ? (FALLBACK_WIDTHS[idx] ?? MIN_WIDTH) : dataWidth;
+          const dataWidth =
+            (stage.count / maxCount) * (MAX_WIDTH - MIN_WIDTH) + MIN_WIDTH;
+          const width = allZero
+            ? (FALLBACK_WIDTHS[idx] ?? MIN_WIDTH)
+            : dataWidth;
           const isLast = idx === stages.length - 1;
 
           return (

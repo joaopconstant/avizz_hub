@@ -23,8 +23,6 @@ import {
   calculateNetValue,
 } from "@/lib/financials";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 type FormValues = {
   product_id: string;
   client_name: string;

@@ -49,20 +49,14 @@ export function ProjectionBoxes({
 }: ProjectionBoxesProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-      <KpiBox
-        label="Caixa Realizado"
-        value={formatCurrency(cashRealized)}
-      />
+      <KpiBox label="Caixa Realizado" value={formatCurrency(cashRealized)} />
       <KpiBox
         label="Projeção Caixa"
         value={formatCurrency(cashProjected)}
         sub={`Baseado em ${workdaysElapsed}/${workdaysTotal} dias úteis`}
         highlight
       />
-      <KpiBox
-        label="Receita Líquida"
-        value={formatCurrency(netRealized)}
-      />
+      <KpiBox label="Receita Líquida" value={formatCurrency(netRealized)} />
       <KpiBox
         label="Receita Futura"
         value={formatCurrency(futureRevenue)}
