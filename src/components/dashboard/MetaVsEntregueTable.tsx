@@ -86,7 +86,7 @@ export function MetaVsEntregueTable({
   onSelectUser,
 }: MetaVsEntregueTableProps) {
   return (
-    <div className="rounded-lg border bg-card p-5 space-y-4">
+    <div className="rounded-lg border bg-card p-5 space-y-4 h-full">
       <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
         Meta × Entregue
       </h2>

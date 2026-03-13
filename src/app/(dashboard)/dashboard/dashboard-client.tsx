@@ -108,22 +108,15 @@ export function DashboardClient({ role, name }: DashboardClientProps) {
         </div>
       </div>
 
-      {/* Row 1: Metas + Funil lado a lado */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div className="lg:col-span-2">
-          <MetaSection
-            cashGoal={s.cashGoal}
-            cashRealized={s.cashRealized}
-            salesGoal={s.salesGoal}
-            salesCount={s.salesCount}
-            myCashRealized={canSeePersonal(role) ? s.myCashRealized : null}
-            mySalesCount={canSeePersonal(role) ? s.mySalesCount : null}
-          />
-        </div>
-        <div className="lg:col-span-3">
-          <FunnelSection stages={funnel.data} />
-        </div>
-      </div>
+      {/* Row 1: Meta (hero, full width) */}
+      <MetaSection
+        cashGoal={s.cashGoal}
+        cashRealized={s.cashRealized}
+        salesGoal={s.salesGoal}
+        salesCount={s.salesCount}
+        myCashRealized={canSeePersonal(role) ? s.myCashRealized : null}
+        mySalesCount={canSeePersonal(role) ? s.mySalesCount : null}
+      />
 
       {/* Row 2: KPIs */}
       <ProjectionBoxes
@@ -136,21 +129,32 @@ export function DashboardClient({ role, name }: DashboardClientProps) {
         workdaysTotal={s.workdaysTotal}
       />
 
-      {/* Row 3: Rankings */}
+      {/* Row 3: Funil + Meta×Entregue lado a lado (admin/head) ou Funil full width */}
+      {isAdminOrHead(role) ? (
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-stretch">
+          <div className="lg:col-span-2 flex flex-col">
+            <FunnelSection stages={funnel.data} />
+          </div>
+          <div className="lg:col-span-3 flex flex-col">
+            <MetaVsEntregueTable
+              closers={closerRows}
+              sdrs={sdrRows}
+              onSelectUser={setSelectedUser}
+            />
+          </div>
+        </div>
+      ) : (
+        <FunnelSection stages={funnel.data} />
+      )}
+
+      {/* Row 4: Rankings com pódio */}
       <RankingsSection
         closers={rankings.data.closers}
         sdrs={rankings.data.sdrs}
         onSelectUser={setSelectedUser}
       />
 
-      {isAdminOrHead(role) && (
-        <MetaVsEntregueTable
-          closers={closerRows}
-          sdrs={sdrRows}
-          onSelectUser={setSelectedUser}
-        />
-      )}
-
+      {/* Row 5: Insights (admin/head) */}
       {isAdminOrHead(role) && insights.data && (
         <InsightsSection
           data={insights.data}
