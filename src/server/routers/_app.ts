@@ -5,6 +5,7 @@ import { productsRouter } from "@/server/routers/products";
 import { gatewaysRouter } from "@/server/routers/gateways";
 import { salesRouter } from "@/server/routers/sales";
 import { advancesRouter } from "@/server/routers/advances";
+import { goalsRouter } from "@/server/routers/goals";
 
 export const appRouter = createTRPCRouter({
   dashboard: dashboardRouter,
@@ -13,6 +14,7 @@ export const appRouter = createTRPCRouter({
   gateways: gatewaysRouter,
   sales: salesRouter,
   advances: advancesRouter,
+  goals: goalsRouter,
 });
 
 export type AppRouter = typeof appRouter;
